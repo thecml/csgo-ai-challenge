@@ -18,8 +18,7 @@ def main():
             if filename.endswith('.json'): 
                 file = open(os.path.join(dirpath, filename), 'r')
                 df = pd.concat([df, pd.read_json(file)])
-    print("Finished reading csv")
-    print(len(df))
+    print(f"Read {len(df)} number of samples")
 
 if __name__ == '__main__':
     main()
