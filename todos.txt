@@ -1,0 +1,14 @@
+Michael:
+
+Put in all code from Kaggle (Part1+Part2)
+Make code more simple and elegant (if time)
+Do some feature engineering
+- Combine money for each team (ct_money)
+- Combine health for each time (ct_health)
+- Combine armor for each team (ct_armor)
+Figure out a smart way to encode weapons
+
+Christian:
+
+Make feature scaling function
+Add TF Keras logic to train model
