@@ -125,10 +125,10 @@ def main():
     X_valid = X_valid.loc[:, ~X_valid.columns.duplicated()]
     
     # Save encoded results
-    file_writer.write_csv(X_train, cfg.INTERIM_DATA_DIR, 'X_train.csv')
-    file_writer.write_csv(X_valid, cfg.INTERIM_DATA_DIR, 'X_valid.csv')
-    file_writer.write_csv(pd.Series(y_train), cfg.INTERIM_DATA_DIR, 'y_train.csv')
-    file_writer.write_csv(pd.Series(y_valid), cfg.INTERIM_DATA_DIR, 'y_valid.csv')
+    file_writer.write_csv(X_train, config.INTERIM_DATA_DIR, 'X_train.csv')
+    file_writer.write_csv(X_valid, config.INTERIM_DATA_DIR, 'X_valid.csv')
+    file_writer.write_csv(pd.Series(y_train), config.INTERIM_DATA_DIR, 'y_train.csv')
+    file_writer.write_csv(pd.Series(y_valid), config.INTERIM_DATA_DIR, 'y_valid.csv')
 
 def make_test_split(X, test_size):
     # Sample data randomly
