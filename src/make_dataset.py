@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import numpy as np
 import pandas as pd
@@ -6,22 +6,22 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
-import file_reader
-import file_writer
-import config
+import src.lib.file_reader as file_reader
+import src.lib.file_writer as file_writer
+import src.config as config
 
 def main():
     df = file_reader.read_json_data()
 
-    # # Make test/validation split
+    # Make test/validation split
     X = df.copy()
-    X_train, X_valid, y_train, y_valid = make_test_split(X, test_size=0.2)
+    X_train, X_valid, y_train, y_valid = make_test_split(df, test_size=0.2)
 
     # Add ct_score and t_score columns from current_score
     X_train_cs = assign_scores(X_train).drop(['current_score'], axis=1)
     X_valid_cs = assign_scores(X_valid).drop(['current_score'], axis=1)
 
-    # Use OH encoder to encode object cols, then remove them and added encoded
+    # Use OH encoder to encode object cols
     object_cols = ['map', 'round_status']
     X_train_enc, X_valid_enc = encode_inputs(X_train_cs, X_valid_cs, object_cols)
     num_X_train = X_train_cs.drop(object_cols, axis=1)
@@ -104,14 +104,14 @@ def main():
         X_valid = pd.merge(X_valid, encode_players_inventory(X_valid, pc), left_index=True, right_index=True)
         X_train = X_train.drop([f'player_{str(pc)}_inventory'], axis=1)
         X_valid = X_valid.drop([f'player_{str(pc)}_inventory'], axis=1)
-    
+
     # Handle NaN's for weapons and grenades
     X_train = X_train.fillna('None')
     X_valid = X_valid.fillna('None')
 
     # Do OH encoding of weapons and grenades
     import itertools
-    col_inv = ['weapon_1', 'weapon_2', 'grenade_1', 'grenade_2', 'grenade_3', 'grenade_4']
+    col_inv = ['weapon_1', 'weapon_2', 'grenade_1', 'grenade_2', 'grenade_3', 'grenade_4', 'grenade_5']
     player_cols = [['player_' + str(pc) + '_' + str(ci) for ci in col_inv] for pc in pc_range]
     player_cols = pd.Series(itertools.chain(*player_cols))
     X_train_enc, X_valid_enc = encode_inputs(X_train, X_valid, player_cols)
@@ -132,15 +132,15 @@ def main():
 
 def make_test_split(X, test_size):
     # Sample data randomly
-    X = X.sample(frac=1, random_state=0).reset_index(drop=True)
+    #X = X.sample(frac=1, random_state=0).reset_index(drop=True)
+    X = X.reset_index(drop=True)
 
     # Set a unique snapshot id
     X = X.assign(snapshot_id=(X.index).astype(int))
                 
-    # Remove rows with missing target, separate target from predictors
-    X.dropna(axis=0, subset=['round_winner'], inplace=True)
+    # Split X and y
     y = X.round_winner
-    X.drop(['round_winner'], axis=1, inplace=True)
+    X = X.drop(['round_winner'], axis=1)
 
     # Drop cols not targeted for model
     cols_to_drop = ['active_smokes', 'active_molotovs', 'previous_kills']
@@ -150,13 +150,15 @@ def make_test_split(X, test_size):
     cols_with_missing = [col for col in X.columns if X[col].isnull().any()]
     X.drop(cols_with_missing, axis=1, inplace=True)
 
-    # Break off validation set from training data
+    # Break off validation set from training set
     X_train, X_valid, y_train, y_valid = train_test_split(X, y,
      test_size=test_size, random_state=0)
 
     # Reset the index
     X_train = X_train.reset_index(drop=True)
     X_valid = X_valid.reset_index(drop=True)
+    y_train = y_train.reset_index(drop=True)
+    y_valid = y_valid.reset_index(drop=True)
     return (X_train, X_valid, y_train, y_valid)
 
 def assign_scores(df):
@@ -177,11 +179,12 @@ def encode_inputs(X_train, X_valid, object_cols):
 def encode_targets(y_train, y_valid):
     le = LabelEncoder()
     le.fit(y_train)
+    list(le.classes_)
     y_train_enc = le.transform(y_train)
+    print(y_train_enc)
     y_valid_enc = le.transform(y_valid)
     return y_train_enc, y_valid_enc
 
-# Encode player's stats
 def encode_players_stats(df, col):
     df = df.set_index(['snapshot_id'])['alive_players']
     alive_players_list = [pd.DataFrame(alive_player) for alive_player in df]
