@@ -3,6 +3,7 @@ import pandas as pd
 import src.file_reader as fr
 import src.file_writer as fw
 import src.config as cfg
+from tensorflow import keras
 
 def main():
     nrows = 100
@@ -18,6 +19,14 @@ def main():
     fw.write_csv(X_valid, cfg.PROCESSED_DATA_DIR, 'X_valid.csv')
     fw.write_csv(y_train, cfg.PROCESSED_DATA_DIR, 'y_train.csv')
     fw.write_csv(y_valid, cfg.PROCESSED_DATA_DIR, 'y_valid.csv')
+
+def make_model():
+    model = keras.models.Sequential()
+    model.add(keras.layers.Dense(300, activation="relu"))
+    model.add(keras.layers.Dense(100, activation="relu"))
+    model.add(keras.layers.Dense(1, activation="sigmoid"))
+    model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    return model
 
 def prepare_data(df):
     cols_leftover = '7_x|8_x|7_y|8_y|'
