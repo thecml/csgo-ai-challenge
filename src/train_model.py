@@ -34,6 +34,11 @@ def prepare_data(df):
     df['round_status_time_left'] = df['round_status_time_left'].apply(
         lambda x: np.around(x, decimals=2))
 
+    # Sum all the health of the players
+    # TODO: How do we check that the player plays on CT/T team?
+    # Each player has a player_1_team_CT and player_1_team_Terrorist column
+    df['ct_health'] = df[df.columns[df.columns.str.contains('health')]].sum(axis=1)
+
     return df
 
 if __name__ == '__main__':
