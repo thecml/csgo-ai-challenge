@@ -6,8 +6,8 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
-import src.lib.file_reader as file_reader
-import src.lib.file_writer as file_writer
+import src.file_reader as file_reader
+import src.file_writer as file_writer
 import src.config as config
 
 def main():
@@ -75,6 +75,7 @@ def main():
     # Create func to drop suffix
     pd.core.frame.DataFrame.drop_suffix = drop_suffix
 
+    # Handle nan inventory
     for pc in pc_range:
         col = 'player_' + str(pc) + '_inventory'
         X_train = pd.merge(X_train, handle_nan_inventory(X_train[col]), left_index=True, right_index=True)

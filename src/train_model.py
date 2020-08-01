@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-import src.lib.file_reader as fr
-import src.lib.file_writer as fw
+import src.file_reader as fr
+import src.file_writer as fw
 import src.config as cfg
 
 def main():
@@ -20,23 +20,19 @@ def main():
     fw.write_csv(y_valid, cfg.PROCESSED_DATA_DIR, 'y_valid.csv')
 
 def prepare_data(df):
-    cols_leftover = '7_x|8_x|7_y|8_y'
-    cols_grenade = 'Grenade|grenade|Flashbang|C4'
-    cols_pistol = 'Deagle|FiveSeven|Clock|UspS|P250|P2000|Tec9'
+    cols_leftover = '7_x|8_x|7_y|8_y|'
+    cols_grenade = 'Grenade|grenade|Flashbang|C4|'
+    cols_pistol = 'Deagle|FiveSeven|Clock|UspS|P250|P2000|Tec9|'
     cols_misc = 'None|Dead|Zeus|snapshot_id'
+    all_cols = cols_leftover + cols_grenade + cols_pistol + cols_misc
+    df = df.drop(df.columns[df.columns.str.contains(all_cols)], axis=1)
 
-    # Delete a lot of unrelated information to wins
-    df = df.drop(df.columns[df.columns.str.contains(cols_leftover)], axis=1)
-    df = df.drop(df.columns[df.columns.str.contains(cols_grenade)], axis=1)
-    df = df.drop(df.columns[df.columns.str.contains(cols_pistol)], axis=1)
-    df = df.drop(df.columns[df.columns.str.contains(cols_misc)], axis=1)
+    # Delete another leftover column
+    if '7' in df.columns: del df['7']
 
     # Cut off some decimals from round time
     df['round_status_time_left'] = df['round_status_time_left'].apply(
         lambda x: np.around(x, decimals=2))
-    
-    # Delete another leftover column
-    if '7' in df.columns: del df['7']
 
     return df
 
