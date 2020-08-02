@@ -17,22 +17,26 @@ def main():
     X_train, X_valid, y_train, y_valid = train_test_split(X, y,
      test_size=0.2, random_state=0, stratify=y)
 
-    X_train, X_valid = scale_data(X_train, X_valid)
-
     model = make_model()
+    early_stopping_cb = keras.callbacks.EarlyStopping(patience=5)
     tensorboard_cb = keras.callbacks.TensorBoard(get_run_logdir())
-    history = model.fit(X_train, np.array(y_train), epochs=50,
-     validation_data=(X_valid, np.array(y_valid)),callbacks=[tensorboard_cb])
+    history = model.fit(np.array(X_train), np.array(y_train), epochs=100,
+     validation_data=(np.array(X_valid), np.array(y_valid)),
+      callbacks=[early_stopping_cb, tensorboard_cb])
 
 def make_model():
     model = keras.models.Sequential()
-    model.add(keras.layers.Dense(93, activation="relu"))
-    model.add(keras.layers.Dense(100, activation="relu"))
-    model.add(keras.layers.Dense(50, activation="relu"))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Dense(93, activation="selu", kernel_initializer="lecun_normal"))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Dense(300, activation="selu", kernel_initializer="lecun_normal"))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Dense(100, activation="selu", kernel_initializer="lecun_normal"))
+    model.add(keras.layers.BatchNormalization())
     model.add(keras.layers.Dense(1, activation="sigmoid"))
-    model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer='Nadam', metrics=['accuracy'])
     return model
-
+ 
 def scale_data(X_train, X_valid):
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
