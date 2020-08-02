@@ -13,7 +13,7 @@ import src.config as cfg
 def main():
     df = fr.read_json_data()
 
-    # Keep 1000 rows
+    # Keep 10000 rows
     df = df[:10000]
 
     # Make test/validation split

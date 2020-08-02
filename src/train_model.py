@@ -3,6 +3,7 @@ import pandas as pd
 import src.file_reader as fr
 import src.file_writer as fw
 import src.config as cfg
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from tensorflow import keras
 
@@ -16,8 +17,13 @@ def main():
 
     model = make_model()
 
-    history = model.fit(X_train, np.array(y_train), epochs=10,
+    history = model.fit(X_train, np.array(y_train), epochs=20,
      validation_data=(X_valid, np.array(y_valid)))
+
+    pd.DataFrame(history.history).plot(figsize=(8,5))
+    plt.grid(True)
+    plt.gca().set_ylim(0, 1)
+    plt.show()
 
 def make_model():
     model = keras.models.Sequential()
