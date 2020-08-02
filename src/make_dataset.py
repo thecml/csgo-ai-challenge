@@ -6,12 +6,15 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
-import src.file_reader as file_reader
-import src.file_writer as file_writer
-import src.config as config
+import src.file_reader as fr
+import src.file_writer as fw
+import src.config as cfg
 
 def main():
-    df = file_reader.read_json_data()
+    df = fr.read_json_data()
+
+    # Keep 1000 rows
+    df = df[:10000]
 
     # Make test/validation split
     X = df.copy()
@@ -124,12 +127,16 @@ def main():
     # Remove duplicated columns
     X_train = X_train.loc[:,~X_train.columns.duplicated()]
     X_valid = X_valid.loc[:, ~X_valid.columns.duplicated()]
-    
+
+    # Prepare the data for modelling
+    X_train = prepare_data(X_train)
+    X_valid = prepare_data(X_valid)
+
     # Save encoded results
-    file_writer.write_csv(X_train, config.INTERIM_DATA_DIR, 'X_train.csv')
-    file_writer.write_csv(X_valid, config.INTERIM_DATA_DIR, 'X_valid.csv')
-    file_writer.write_csv(pd.Series(y_train), config.INTERIM_DATA_DIR, 'y_train.csv')
-    file_writer.write_csv(pd.Series(y_valid), config.INTERIM_DATA_DIR, 'y_valid.csv')
+    fw.write_csv(X_train, cfg.PROCESSED_DATA_DIR, 'X_train.csv')
+    fw.write_csv(X_valid, cfg.PROCESSED_DATA_DIR, 'X_valid.csv')
+    fw.write_csv(pd.Series(y_train), cfg.PROCESSED_DATA_DIR, 'y_train.csv')
+    fw.write_csv(pd.Series(y_valid), cfg.PROCESSED_DATA_DIR, 'y_valid.csv')
 
 def make_test_split(X, test_size):
     # Sample data randomly
@@ -182,7 +189,6 @@ def encode_targets(y_train, y_valid):
     le.fit(y_train)
     list(le.classes_)
     y_train_enc = le.transform(y_train)
-    print(y_train_enc)
     y_valid_enc = le.transform(y_valid)
     return y_train_enc, y_valid_enc
 
@@ -225,6 +231,50 @@ def handle_nan_inventory(df):
 def drop_suffix(self, suffix):
     self.columns = self.columns.str.rstrip(suffix)
     return self
+
+def prepare_data(df):
+    cols_leftover = '7_x|8_x|7_y|8_y|'
+    cols_grenade = 'Grenade|grenade|Flashbang|C4|'
+    cols_misc = 'None|Dead|Zeus|snapshot_id'
+    all_cols = cols_leftover + cols_grenade + cols_misc
+    df = df.drop(df.columns[df.columns.str.contains(all_cols)], axis=1)
+
+    # Delete another leftover column
+    if '7' in df.columns: del df['7']
+
+    # Cut off some decimals from round time
+    df['round_status_time_left'] = df['round_status_time_left'].apply(
+        lambda x: np.around(x, decimals=2))
+
+    # Sum the stats of the teams
+    numPlayers = 10
+    df['ct_health'] = sum_player_cols(df, 'health', 'CT')
+    df['t_health'] = sum_player_cols(df, 'health', 'Terrorist')
+    df['ct_armor'] = sum_player_cols(df, 'armor', 'CT')
+    df['t_armor'] = sum_player_cols(df, 'armor', 'Terrorist')
+    df['ct_money'] = sum_player_cols(df, 'money', 'CT')
+    df['t_money'] = sum_player_cols(df, 'money', 'Terrorist')
+    df['ct_helmets'] = sum_player_cols(df, 'has_helmet', 'CT')
+    df['t_helmets'] = sum_player_cols(df, 'has_helmet', 'Terrorist')
+    df['ct_defuse_kits'] = sum_player_cols(df, 'has_defuser', 'CT')
+    df['ct_players'] = sum([df[str(f'player_{i}_team_CT')] for i in range(1, numPlayers + 1)])
+    df['t_players'] = sum([df[str(f'player_{i}_team_Terrorist')] for i in range(1, numPlayers + 1)])
+
+    # Sum the weapons of the teams
+    for weapon in cfg.weapon_list:
+        df[f'ct_weapon_{weapon}'] = sum_player_cols(df, f'weapon_1_{weapon}', 'CT') \
+         + sum_player_cols(df, f'weapon_2_{weapon}', 'CT')
+        df[f't_weapon_{weapon}'] = sum_player_cols(df, f'weapon_1_{weapon}', 'Terrorist') \
+         + sum_player_cols(df, f'weapon_2_{weapon}', 'Terrorist')
+        
+    # Drop individual player columns
+    df = df.drop(df.columns[df.columns.str.contains('player_')], axis=1)
+
+    return df
+
+def sum_player_cols(df, name, team, numPlayers=10):
+    return sum([df[str(f'player_{i}_' + name)].where(df[str(f'player_{i}_team_' + team)] == 1.0, 0)
+     for i in range(1, numPlayers + 1) if str(f'player_{i}_' + name) in df.columns])
 
 if __name__ == '__main__':
     main()
