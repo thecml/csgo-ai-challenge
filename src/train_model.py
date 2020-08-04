@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import src.file_reader as fr
-import src.file_writer as fw
-import src.config as cfg
+import file_reader as fr
+import file_writer as fw
+import config as cfg
 import matplotlib.pyplot as plt
 import os
 import time

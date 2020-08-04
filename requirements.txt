@@ -1,5 +1,5 @@
 pandas
 numpy
 scikit-learn
-tensorflow
+tensorflow-gpu
 matplotlib

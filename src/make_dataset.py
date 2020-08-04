@@ -3,15 +3,13 @@ import pandas as pd
 import os
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
-import src.file_reader as fr
-import src.file_writer as fw
-import src.config as cfg
+import file_reader as fr
+import file_writer as fw
+import config as cfg
 
 def main():
-    # Load data
+    # Load the data
     df = fr.read_json_data()
-    df = df[:10000]
-
     X = df.copy()
     X = X.reset_index(drop=True)
     X = X.assign(snapshot_id=(X.index).astype(int))
@@ -64,7 +62,8 @@ def main():
     col_labels = ['has_helmet', 'has_defuser']
     for col in col_labels:
         for pc in pc_range:
-            X[f'player_{pc}_{col}'] = X[f'player_{pc}_{col}'].replace({True: 1, False: 0})
+            X[f'player_{pc}_{col}'] = X[f'player_{pc}_{col}'] \
+            .replace({True: 1, False: 0})
             
     # OH encode player teams
     player_cols = ['player_' + str(pc) + '_team' for pc in pc_range]
@@ -78,7 +77,8 @@ def main():
     # Handle NaN in player's inventory
     for pc in pc_range:
         col = 'player_' + str(pc) + '_inventory'
-        X = pd.merge(X, handle_nan_inventory(X[col]), left_index=True, right_index=True)
+        X = pd.merge(X, handle_nan_inventory(X[col]),
+         left_index=True, right_index=True)
         X = X.drop([col + '_y'], axis=1)
         X = X.drop_suffix('_x')
 
@@ -88,11 +88,13 @@ def main():
         text_empty_X = X[col].str.len() < 1
         indices_X = X.loc[text_empty_X].index
         for idx in indices_X:
-            X.at[idx, col] = [{'item_type': 'None', 'clip_ammo': 0, 'reserve_ammo': 0}]
+            X.at[idx, col] = [{'item_type': 'None',
+             'clip_ammo': 0, 'reserve_ammo': 0}]
 
     # Encode player's inventory
     for pc in pc_range:
-        X = pd.merge(X, encode_players_inventory(X, pc), left_index=True, right_index=True)
+        X = pd.merge(X, encode_players_inventory(X, pc),
+         left_index=True, right_index=True)
         X = X.drop([f'player_{str(pc)}_inventory'], axis=1)
 
     # Handle NaN's for weapons and grenades
@@ -102,7 +104,8 @@ def main():
     import itertools
     col_inv = ['weapon_1', 'weapon_2', 'grenade_1',
      'grenade_2', 'grenade_3', 'grenade_4', 'grenade_5']
-    player_cols = [['player_' + str(pc) + '_' + str(ci) for ci in col_inv] for pc in pc_range]
+    player_cols = [['player_' + str(pc) + '_' + str(ci) for ci in col_inv]
+     for pc in pc_range]
     player_cols = pd.Series(itertools.chain(*player_cols))
     X_encoded = encode_inputs(X, player_cols)
     numerical_X = X.drop(player_cols, axis=1)
@@ -176,8 +179,10 @@ def encode_players_stats(df, col):
           .transpose()
           .reset_index(level=[0,1])
           .rename(columns={'level_1':'player_stats'}))
-    df = df.rename(columns={0:'player_1', 1:'player_2', 2:'player_3', 3:'player_4', 4:'player_5',
-                  5:'player_6', 6:'player_7', 7:'player_8', 8:'player_9', 9:'player_10', 10:'player_unknown'})
+    df = df.rename(columns={0:'player_1', 1:'player_2', 2:'player_3',
+     3:'player_4', 4:'player_5',
+                  5:'player_6', 6:'player_7', 7:'player_8',
+                   8:'player_9', 9:'player_10', 10:'player_unknown'})
     
     df = df[df.player_stats == col].reset_index(drop=True)
     df = df.drop(['player_stats'], axis=1)
