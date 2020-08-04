@@ -119,7 +119,7 @@ def main():
     cols_grenade = 'Grenade|grenade|Flashbang|C4|'
     cols_misc = 'None|Dead|Zeus|snapshot_id'
     all_cols = cols_leftover + cols_grenade + cols_misc
-    X_encoded = X.drop(X.columns[X.columns.str.contains(all_cols)], axis=1)
+    X = X.drop(X.columns[X.columns.str.contains(all_cols)], axis=1)
     if '7' in X.columns: del X['7']
 
     # Cut off some decimals from round time

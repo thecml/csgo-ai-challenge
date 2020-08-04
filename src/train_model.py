@@ -20,10 +20,11 @@ def main():
     model = make_model()
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=5)
     tensorboard_cb = keras.callbacks.TensorBoard(get_run_logdir())
+    
     history = model.fit(np.array(X_train), np.array(y_train), epochs=100,
      validation_data=(np.array(X_valid), np.array(y_valid)),
       callbacks=[early_stopping_cb, tensorboard_cb])
-
+    
 def make_model():
     model = keras.models.Sequential()
     model.add(keras.layers.BatchNormalization())
