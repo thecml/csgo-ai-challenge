@@ -14,16 +14,18 @@ def main():
     X = fr.read_csv(cfg.PROCESSED_DATA_DIR, 'X_full.csv')
     y = fr.read_csv(cfg.PROCESSED_DATA_DIR, 'y_full.csv')
 
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y,
-     test_size=0.2, random_state=0, stratify=y)
+    X_train_full, X_test, y_train_full, y_test = train_test_split(X, y, random_state=0, stratify=y)
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train_full, y_train_full, random_state=0, stratify=y)
 
     model = make_model()
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=5)
     tensorboard_cb = keras.callbacks.TensorBoard(get_run_logdir())
     
-    history = model.fit(np.array(X_train), np.array(y_train), epochs=100,
+    history = model.fit(np.array(X_train), np.array(y_train), epochs=2,
      validation_data=(np.array(X_valid), np.array(y_valid)),
       callbacks=[early_stopping_cb, tensorboard_cb])
+    results = model.evaluate(X_test, y_test)
+    print("Test loss, test acc:", results)
     
 def make_model():
     model = keras.models.Sequential()
