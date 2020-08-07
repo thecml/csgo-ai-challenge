@@ -1,0 +1,23 @@
+Best: 0.811137 using {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Nadam'}
+0.785596 (0.009203) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'SGD'}
+0.800410 (0.003137) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'RMSprop'}
+0.741759 (0.002003) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Adagrad'}
+0.720183 (0.002660) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Adadelta'}
+0.807136 (0.003012) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Adam'}
+0.809257 (0.001556) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Adamax'}
+0.811137 (0.002177) with: {'clf__dropout_rate': 0, 'clf__epochs': 100, 'clf__hidden_layers': [300, 300, 300, 300], 'clf__optimizer': 'Nadam'}
+
+Best: 0.725896 using {'clf__dropout_rate': 0.1, 'clf__epochs': 100, 'clf__hidden_layers': [64, 32], 'clf__optimizer': 'Nadam'}
+0.725896 (0.003031) with: {'clf__dropout_rate': 0.1, 'clf__epochs': 100, 'clf__hidden_layers': [64, 32], 'clf__optimizer': 'Nadam'}
+
+Best: 0.697969 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0, 'clf__activation': 'selu'}
+0.697969 (0.011124) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0, 'clf__activation': 'selu'}
+0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.1, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [128], 'clf__l1_penalty': 0.5, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.4, 'clf__activation': 'selu'}
+0.687037 (0.012040) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [128, 64], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.3, 'clf__activation': 'selu'}
+0.505997 (0.008509) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.2, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.5, 'clf__activation': 'selu'}
+0.499042 (0.010365) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [128, 64], 'clf__l1_penalty': 0.1, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.5, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+0.689797 (0.015468) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.3, 'clf__activation': 'selu'}
+0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [128, 64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.2, 'clf__activation': 'selu'}
+0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32, 16], 'clf__l1_penalty': 0.5, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
