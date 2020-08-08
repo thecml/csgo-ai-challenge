@@ -35,19 +35,18 @@ def main():
     early_stopping_cb = keras.callbacks.EarlyStopping(patience=5)
     tensorboard_cb = keras.callbacks.TensorBoard(get_run_logdir())
 
-    network_layers_opts = [[64], [64, 32], [64, 32, 16],
-     [128], [128, 64], [128, 64, 32], [256, 128, 64, 32]]
+    network_layers_opts = [[93, 300, 300, 100]]
     param_grid = {'clf__network_layers': network_layers_opts,
-     'clf__epochs': [10],
-     'clf__dropout_rate': [0.5, 0.4, 0.3, 0.2, 0.1, 0],
+     'clf__epochs': [100],
+     'clf__dropout_rate': [0.1],
      'clf__optimizer': ['Nadam'],
      'clf__activation': ['selu'],
-     'clf__k_initializer': ['lecun_uniform'],
-     'clf__l1_penalty': [0.01, 0.1, 0.2, 0.5]
+     'clf__k_initializer': ['lecun_normal'],
+     'clf__l1_penalty': [0]
     }
 
     rs_keras = RandomizedSearchCV(keras_pipeline, param_distributions=param_grid,
-     cv=5, refit=False, verbose=10, scoring="accuracy")
+     cv=5, refit=False, verbose=10, n_iter=5, scoring="accuracy")
     result = rs_keras.fit(np.array(X_train), np.array(y_train))
     
     print("Best: %f using %s" % (result.best_score_, result.best_params_))
@@ -58,17 +57,17 @@ def main():
         print("%f (%f) with: %r" % (mean, stdev, param))
     
 def make_model(network_layers=[64], dropout_rate=0, optimizer="Nadam",
- activation="selu", k_initializer='lecun_uniform', l1_penalty=0,
+ activation="selu", k_initializer='lecun_normal', l1_penalty=0,
   n_input=93, n_class=1):
     model = keras.models.Sequential()
 
     for index, layers in enumerate(network_layers):
         if not index:
-            model.add(keras.layers.Dense(layers, input_dim=n_input, activation=activation,
-             kernel_initializer=k_initializer, kernel_regularizer = keras.regularizers.l1(l1_penalty)))
+            model.add(keras.layers.Dense(layers, input_dim=n_input,
+             activation=activation, kernel_initializer=k_initializer))
         else:
-            model.add(keras.layers.Dense(layers, kernel_initializer=k_initializer,
-             activation=activation, kernel_regularizer = keras.regularizers.l1(l1_penalty)))
+            model.add(keras.layers.Dense(layers,
+             kernel_initializer=k_initializer,  activation=activation))
         if dropout_rate and index:
             model.add(keras.layers.AlphaDropout(dropout_rate))
 

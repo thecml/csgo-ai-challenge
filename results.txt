@@ -21,3 +21,12 @@ Best: 0.697969 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32]
 0.689797 (0.015468) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.3, 'clf__activation': 'selu'}
 0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [128, 64, 32], 'clf__l1_penalty': 0.01, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.2, 'clf__activation': 'selu'}
 0.509793 (0.003528) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32, 16], 'clf__l1_penalty': 0.5, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+
+Best: 0.710492 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32, 16, 8], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0, 'clf__activation': 'selu'}
+0.710492 (0.004033) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32, 16, 8], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_uniform', 'clf__epochs': 10, 'clf__dropout_rate': 0, 'clf__activation': 'selu'}
+
+Best: 0.756464 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [93, 300, 100], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_normal', 'clf__epochs': 100, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+0.756464 (0.004313) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [93, 300, 100], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_normal', 'clf__epochs': 100, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
+
+Epoch 73/100
+73746/73746 [==============================] - 19s 253us/sample - loss: 0.3902 - accuracy: 0.8129 - val_loss: 0.4533 - val_accuracy: 0.7823
