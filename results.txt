@@ -28,24 +28,8 @@ Best: 0.710492 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [64, 32,
 Best: 0.756464 using {'clf__optimizer': 'Nadam', 'clf__network_layers': [93, 300, 100], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_normal', 'clf__epochs': 100, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
 0.756464 (0.004313) with: {'clf__optimizer': 'Nadam', 'clf__network_layers': [93, 300, 100], 'clf__l1_penalty': 0, 'clf__k_initializer': 'lecun_normal', 'clf__epochs': 100, 'clf__dropout_rate': 0.1, 'clf__activation': 'selu'}
 
-Epoch 73/100
-73746/73746 [==============================] - 19s 253us/sample - loss: 0.3902 - accuracy: 0.8129 - val_loss: 0.4533 - val_accuracy: 0.7823
-
-def make_model():
-    model = keras.models.Sequential()
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(1, activation="sigmoid"))
-    model.compile(loss='binary_crossentropy', optimizer='Nadam', metrics=['accuracy'])
-    return model
+LGBMClassifier:
+Best score reached: 0.8976119254408806 with params: {'colsample_bytree': 0.8074543693764484, 'min_child_samples': 214, 'min_child_weight': 0.001, 'num_leaves': 39, 'reg_alpha': 1, 'reg_lambda': 0.1, 'subsample': 0.5185768497728735} 
+Model with rank: 1
+Mean validation score: 0.898 (std: 0.004)
+Parameters: {'colsample_bytree': 0.8074543693764484, 'min_child_samples': 214, 'min_child_weight': 0.001, 'num_leaves': 39, 'reg_alpha': 1, 'reg_lambda': 0.1, 'subsample': 0.5185768497728735}
