@@ -9,7 +9,10 @@ import time
 from sklearn.preprocessing import power_transform
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
 from tensorflow import keras
+#from xgboost import XGBClassifier
 
 def main():
     X = fr.read_csv(cfg.PROCESSED_DATA_DIR, 'X_full.csv')
@@ -22,49 +25,86 @@ def main():
     X_train, X_valid, y_train, y_valid = train_test_split(X_train_full, y_train_full,
      test_size=0.25, random_state=0)
 
-    model = make_model()
-    early_stopping_cb = keras.callbacks.EarlyStopping(patience=10)
-    tensorboard_cb = keras.callbacks.TensorBoard(get_run_logdir())
+    keras_free = make_keras_model(n_layers=4)
+    keras_regularized = make_keras_model(n_layers=4, regularized=True, dropout=False)
+    keras_dropout = make_keras_model(n_layers=4, regularized=False, dropout=True)
 
-    history = model.fit(np.array(X_train), np.array(y_train), epochs=100,
+    tensorboard_cb_free = keras.callbacks.TensorBoard(get_run_logdir('free'))
+    tensorboard_cb_regularized = keras.callbacks.TensorBoard(get_run_logdir('regularized'))
+    tensorboard_cb_dropout = keras.callbacks.TensorBoard(get_run_logdir('dropout'))
+    reduce_lr_cb_free = get_keras_reducelr_cb()
+    reduce_lr_cb_regularized = get_keras_reducelr_cb()
+    reduce_lr_cb_dropout = get_keras_reducelr_cb()
+
+    model_checkpoint_cb_free = keras.callbacks.ModelCheckpoint(get_run_modeldir('free'))
+    model_checkpoint_cb_regularized = keras.callbacks.ModelCheckpoint(get_run_modeldir('regularized'))
+    model_checkpoint_cb_dropout = keras.callbacks.ModelCheckpoint(get_run_modeldir('dropout'))
+
+    history_free = keras_free.fit(np.array(X_train), np.array(y_train), epochs=100,
      validation_data=(np.array(X_valid), np.array(y_valid)),
-      callbacks=[early_stopping_cb, tensorboard_cb])
-    results = model.evaluate(X_test, y_test)
-    print("Test loss, test acc:", results)
+      callbacks=[tensorboard_cb_free, model_checkpoint_cb_free, reduce_lr_cb_free])
     
-def make_model():
+    history_regularized = keras_regularized.fit(np.array(X_train), np.array(y_train), epochs=100,
+     validation_data=(np.array(X_valid), np.array(y_valid)),
+      callbacks=[tensorboard_cb_regularized, model_checkpoint_cb_regularized, reduce_lr_cb_regularized])
+
+    history_dropout = keras_dropout.fit(np.array(X_train), np.array(y_train), epochs=100,
+     validation_data=(np.array(X_valid), np.array(y_valid)),
+      callbacks=[tensorboard_cb_dropout, model_checkpoint_cb_dropout, reduce_lr_cb_dropout])
+
+    results_free = keras_free.evaluate(X_test, y_test)
+    results_regularized = keras_regularized.evaluate(X_test, y_test)
+    results_dropout = keras_dropout.evaluate(X_test, y_test)
+
+    print("Free test loss, test acc:", results_free)
+    print("Regularized test loss, test acc:", results_regularized)
+    print("Dropout test loss, test acc:", results_dropout)
+
+def make_keras_model(n_layers, regularized=False, dropout=False):
     model = keras.models.Sequential()
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
-    model.add(keras.layers.Dense(300, kernel_initializer="he_normal", use_bias=False))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Activation("elu"))
+    for n in range(n_layers):
+        if regularized:
+            model.add(keras.layers.Dense(300, kernel_initializer="he_normal",
+             kernel_regularizer=keras.regularizers.l2(0.1), use_bias=False))
+        else:
+            model.add(keras.layers.Dense(300,
+             kernel_initializer="he_normal", use_bias=False))
+        model.add(keras.layers.BatchNormalization())
+        model.add(keras.layers.Activation("elu"))
+        if dropout:
+            model.add(keras.layers.AlphaDropout(rate=0.1))
     model.add(keras.layers.Dense(1, activation="sigmoid"))
     model.compile(loss='binary_crossentropy', optimizer='Nadam', metrics=['accuracy'])
     return model
- 
+
+def make_random_forest():
+    return RandomForestClassifier(n_estimators=1000, random_state=0)
+
+def make_naive_bayes():
+    return GaussianNB()
+
+def make_xgboost():
+    return XGBClassifier(n_estimators=1000, random_state=0)
+
+def get_keras_reducelr_cb():
+    return keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
+     patience=5, min_lr=0.001)
+
 def prepare_data(df):
     # Add 1m55s to round if freezetime
-    df['round_status_time_left'] = df.apply(add_round_time, axis=1)
-    df = df.drop(['round_status_FreezeTime', 'round_status_Normal'], axis=1)
+    #df['round_status_time_left'] = df.apply(add_round_time, axis=1)
+    #df = df.drop(['round_status_FreezeTime', 'round_status_Normal'], axis=1)
 
     # Clip roundtime value
-    df['round_status_time_left'] = df['round_status_time_left'].clip(0, 175)
+    #df['round_status_time_left'] = df['round_status_time_left'].clip(0, 175)
 
     # Drop map columns
-    df = df.drop(df.columns[df.columns.str.contains('map')], axis=1)
+    #df = df.drop(df.columns[df.columns.str.contains('map')], axis=1)
 
     # Drop pistol columns
-    pistol_cols = 'Cz75Auto|Elite|Glock|P250|UspS|P2000|Tec9|FiveSeven'
-    df = df.drop(df.columns[df.columns.str.contains(pistol_cols)], axis=1)
+    #pistol_cols = 'Cz75Auto|Elite|Glock|P250|UspS|P2000|Tec9|FiveSeven'
+    #df = df.drop(df.columns[df.columns.str.contains(pistol_cols)], axis=1)
 
     # Make data more Gaussian-like
     cols = ['round_status_time_left', 'ct_money', 't_money', 'ct_health',
@@ -82,9 +122,13 @@ def scale_data(X_train, X_valid, X_test):
     X_test = scaler.transform(X_test)
     return X_train, X_valid, X_test
 
-def get_run_logdir():
-    run_id = time.strftime("run_%Y_%m_%d-%H_%M_%S")
+def get_run_logdir(name):
+    run_id = time.strftime(f"run_%Y_%m_%d-%H_%M_%S_{name}")
     return os.path.join(cfg.LOGS_DIR, run_id)
+
+def get_run_modeldir(name):
+    run_id = time.strftime(f"run_%Y_%m_%d-%H_%M_%S_{name}")
+    return os.path.join(cfg.MODELS_DIR, run_id)
 
 def yeo_johnson(series):
     arr = np.array(series).reshape(-1, 1)
