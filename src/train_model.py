@@ -12,7 +12,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from tensorflow import keras
-#from xgboost import XGBClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 
 def main():
     X = fr.read_csv(cfg.PROCESSED_DATA_DIR, 'X_full.csv')
@@ -78,14 +80,18 @@ def make_keras_model(n_layers, regularized=False, dropout=False):
     model.compile(loss='binary_crossentropy', optimizer='Nadam', metrics=['accuracy'])
     return model
 
-def make_random_forest():
-    return RandomForestClassifier(n_estimators=1000, random_state=0)
+def make_knn():
+    return KNeighborsClassifier()
 
-def make_naive_bayes():
-    return GaussianNB()
+def make_lgbm():
+    return LGBMClassifier(colsample_bytree=0.8, min_child_samples=214, 
+    min_child_weight=0.001, num_leaves=39, reg_alpha=1, reg_lambda=0.1,
+    subsample=0.51, random_state=0)
 
-def make_xgboost():
-    return XGBClassifier(n_estimators=1000, random_state=0)
+def make_xgb():
+    return XGBClassifier(colsample_bytree=0.62, learning_rate=0.1,
+     max_depth=10, min_child_weight=0.1, n_estimators=5000,
+     reg_alpha=1, reg_lambda=5, subsample=0.96, random_state=0)
 
 def get_keras_reducelr_cb():
     return keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2,
