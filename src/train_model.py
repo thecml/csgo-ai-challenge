@@ -14,7 +14,8 @@ from sklearn.naive_bayes import GaussianNB
 from tensorflow import keras
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
+from sklearn.metrics import accuracy_score
+from catboost import CatBoostClassifier, Pool
 
 def main():
     X = fr.read_csv(cfg.PROCESSED_DATA_DIR, 'X_full.csv')
@@ -42,15 +43,15 @@ def main():
     model_checkpoint_cb_deep = keras.callbacks.ModelCheckpoint(get_run_modeldir('deep'))
     model_checkpoint_cb_dropout = keras.callbacks.ModelCheckpoint(get_run_modeldir('dropout'))
 
-    history_shallow = keras_shallow.fit(np.array(X_train), np.array(y_train), epochs=200,
+    history_shallow = keras_shallow.fit(np.array(X_train), np.array(y_train), epochs=1, #Set to 200
      validation_data=(np.array(X_valid), np.array(y_valid)),
       callbacks=[tensorboard_cb_shallow, model_checkpoint_cb_shallow, reduce_lr_cb_shallow])
     
-    history_deep = keras_deep.fit(np.array(X_train), np.array(y_train), epochs=250,
+    history_deep = keras_deep.fit(np.array(X_train), np.array(y_train), epochs=1, #Set to 250
      validation_data=(np.array(X_valid), np.array(y_valid)),
       callbacks=[tensorboard_cb_deep, model_checkpoint_cb_deep, reduce_lr_cb_deep])
 
-    history_dropout = keras_dropout.fit(np.array(X_train), np.array(y_train), epochs=250,
+    history_dropout = keras_dropout.fit(np.array(X_train), np.array(y_train), epochs=1, #Set to 250
      validation_data=(np.array(X_valid), np.array(y_valid)),
       callbacks=[tensorboard_cb_dropout, model_checkpoint_cb_dropout, reduce_lr_cb_dropout])
 
@@ -58,9 +59,32 @@ def main():
     results_deep = keras_deep.evaluate(X_test, y_test)
     results_dropout = keras_dropout.evaluate(X_test, y_test)
 
-    print("Shallow test loss, test acc:", results_shallow)
-    print("Deep test loss, test acc:", results_deep)
-    print("Dropout test loss, test acc:", results_dropout)
+    print("shallow acc:", results_shallow)
+    print("deep acc:", results_deep)
+    print("dropout acc:", results_dropout)
+
+    clf_cat = CatBoostClassifier(learning_rate=0.03,
+                           iterations=20000,
+                           task_type="GPU",
+                           devices='0:1',
+                           eval_metric='AUC')
+    clf_cat.fit(Pool(X_train, y_train.values.ravel()),
+     eval_set=Pool(X_valid, y_valid.values.ravel()),
+      early_stopping_rounds=200)
+    results_cat = clf_cat.predict(X_test)
+    print(f"cat acc: {accuracy_score(y_test, results_cat)}")
+
+    clf_xgb = make_xgb()
+    clf_xgb.fit(X_train, y_train.values.ravel(),
+     eval_set=[(X_train, y_train.values.ravel()), (X_valid, y_valid.values.ravel())], 
+            eval_metric='auc', verbose=200, early_stopping_rounds=200)
+    results_xgb = clf_xgb.predict(X_test)
+    print(f"xgb acc: {accuracy_score(y_test, results_xgb)}")
+
+    clf_knn = make_knn()
+    clf_knn.fit(X_train, y_train.values.ravel())
+    results_knn = clf_knn.predict(X_test)
+    print(f"knn acc: {accuracy_score(y_test, results_knn)}")
 
 def make_keras_model(n_layers, regularized=False, dropout=False):
     model = keras.models.Sequential()

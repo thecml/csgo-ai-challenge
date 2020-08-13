@@ -4,4 +4,4 @@ scikit-learn
 tensorflow-gpu
 matplotlib
 xgboost
-lightgbm
+catboost
