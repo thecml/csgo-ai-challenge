@@ -8,6 +8,9 @@ weapon_list = ['Ak47', 'Aug', 'Awp', 'Bizon', 'Cz75Auto', 'Elite',
  'Scar20', 'Sg553', 'Ssg08', 'Ump45', 'Xm1014', 'Deagle', 'FiveSeven', 'Glock', 'UspS',
  'P250', 'P2000', 'Tec9', 'Cz75Auto']
 
+grenade_list = ['HeGrenade', 'Flashbang', 'SmokeGrenade',
+'IncendiaryGrenade', 'MolotovGrenade', 'DecoyGrenade', 'C4']
+
 ROOT_DIR = Path(__file__).absolute().parent.parent
 MODELS_DIR = Path.joinpath(ROOT_DIR, 'models')
 LOGS_DIR = Path.joinpath(ROOT_DIR, 'logs')

@@ -19,7 +19,7 @@ def main():
     X = X.drop(['round_winner'], axis=1)
 
     # Drop unused cols and those with NaN's
-    cols_to_drop = ['active_smokes', 'active_molotovs', 'previous_kills']
+    cols_to_drop = ['active_smokes', 'active_molotovs', 'previous_kills', 'patch_version', 'map_crc']
     cols_with_missing = [col for col in X.columns if X[col].isnull().any()]
     X.drop(cols_to_drop, axis=1, inplace=True)
     X.drop(cols_with_missing, axis=1, inplace=True)
@@ -116,9 +116,8 @@ def main():
 
     # Delete some leftover columns and drop grenades
     cols_leftover = '7_x|8_x|7_y|8_y|'
-    cols_grenade = 'Grenade|grenade|Flashbang|C4|'
     cols_misc = 'None|Dead|Zeus|snapshot_id'
-    all_cols = cols_leftover + cols_grenade + cols_misc
+    all_cols = cols_leftover + cols_misc
     X = X.drop(X.columns[X.columns.str.contains(all_cols)], axis=1)
     if '7' in X.columns: del X['7']
 
@@ -145,7 +144,20 @@ def main():
          + sum_player_cols(X, f'weapon_2_{weapon}', 'CT')
         X[f't_weapon_{weapon}'] = sum_player_cols(X, f'weapon_1_{weapon}', 'Terrorist') \
          + sum_player_cols(X, f'weapon_2_{weapon}', 'Terrorist')
-        
+    
+    # Sum the grenades of the teams
+    for grenade in cfg.grenade_list:
+        X[f'ct_grenade_{grenade}'] = sum_player_cols(X, f'grenade_1_{grenade}', 'CT') \
+        + sum_player_cols(X, f'grenade_2_{grenade}', 'CT') \
+        + sum_player_cols(X, f'grenade_3_{grenade}', 'CT') \
+        + sum_player_cols(X, f'grenade_4_{grenade}', 'CT') \
+        + sum_player_cols(X, f'grenade_5_{grenade}', 'CT')
+        X[f't_grenade_{grenade}'] = sum_player_cols(X, f'grenade_1_{grenade}', 'Terrorist') \
+        + sum_player_cols(X, f'grenade_2_{grenade}', 'Terrorist') \
+        + sum_player_cols(X, f'grenade_3_{grenade}', 'Terrorist') \
+        + sum_player_cols(X, f'grenade_4_{grenade}', 'Terrorist') \
+        + sum_player_cols(X, f'grenade_5_{grenade}', 'Terrorist')
+
     # Drop individual player columns
     X = X.drop(X.columns[X.columns.str.contains('player_')], axis=1)
 
