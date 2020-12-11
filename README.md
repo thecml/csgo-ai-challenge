@@ -1,1 +1,1 @@
-The CS:GO AI challenge summer 2020
+Skybox's CS:GO AI challenge that ran in the Summer 2020.
