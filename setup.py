@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description='The CS:GO AI challenge summer 2020',
+    description='CS:GO AI Challenge',
     author='thecml',
     license='MIT',
 )

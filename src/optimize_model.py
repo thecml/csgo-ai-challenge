@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import time
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from tensorflow import keras
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.pipeline import Pipeline
@@ -27,7 +27,7 @@ def main():
     print(f"Number of testing samples: {X_test.shape[0]}")
 
     keras_pipeline = Pipeline([
-        ("scaler", MinMaxScaler(feature_range=(-1, 1))),
+        ("scaler", StandardScaler()),
         ("clf", keras.wrappers.scikit_learn.KerasClassifier(build_fn=make_model,
          n_input=X_train.shape[1], n_class=y_train.shape[1]))
     ])
